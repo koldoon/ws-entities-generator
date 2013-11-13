@@ -1,0 +1,48 @@
+package #PACKAGE#
+{
+#IMPORT_TAMPLATE#
+    import mx.collections.ArrayCollection;
+#IMPORT_TAMPLATE#
+
+    [RemoteClass(alias="#REMOTE_TYPE#")]
+#TYPE_HEADER#
+    public class #TYPE_NAME#
+#TYPE_HEADER#
+#SUBTYPE_HEADER#
+    public class #TYPE_NAME# extends #SUBTYPE_NAME#
+#SUBTYPE_HEADER#
+    {
+#PROPERTY_TEMPLATE#
+        private var _#PROPERTY_NAME#:#PROPERTY_TYPE#;
+        public function get #PROPERTY_NAME#():#PROPERTY_TYPE#
+        {
+            return _#PROPERTY_NAME#;
+        }
+        public function set #PROPERTY_NAME#(value:#PROPERTY_TYPE#):void
+        {
+            _#PROPERTY_NAME# = value;
+        }
+
+#PROPERTY_TEMPLATE#
+
+#COLLECTION_TEMPLATE#
+        private var _#COLLECTION_NAME#:ArrayCollection;
+        /**
+         * Collection of <code>#COLLECTION_ELEMENT_TYPE#</code>
+         * @see #COLLECTION_ELEMENT_TYPE#
+         */
+        public function get #COLLECTION_NAME#():ArrayCollection
+        {
+            return _#COLLECTION_NAME#;
+        }
+        public function set #COLLECTION_NAME#(value:ArrayCollection):void
+        {
+            _#COLLECTION_NAME# = value;
+        }
+
+#COLLECTION_TEMPLATE#
+        public function #TYPE_NAME#()
+        {
+        }
+    }
+}

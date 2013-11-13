@@ -1,0 +1,33 @@
+package #PACKAGE#
+{
+    public class #TYPE_NAME#
+    {
+
+#VALUE_TEMPLATE#
+        public static const #VALUE_NAME#:#TYPE_NAME# = new #TYPE_NAME#("#VALUE_NAME#");
+#VALUE_TEMPLATE#
+
+        private static var _values:Vector.<String>;
+        private var _value:String;
+
+        public function #TYPE_NAME#(value:String)
+        {
+            _value = value;
+
+            if (!_values)
+                _values = new Vector.<String>();
+
+            _values.push(value);
+        }
+
+        public function get value():String
+        {
+            return _value;
+        }
+
+        public static function getValues():Vector.<String>
+        {
+            return _values.slice();
+        }
+    }
+}
