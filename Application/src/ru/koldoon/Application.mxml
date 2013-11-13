@@ -1,0 +1,340 @@
+<?xml version="1.0"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                       xmlns:mx="library://ns.adobe.com/flex/mx"
+                       xmlns:mxc="mx.collections.*" xmlns:model="ru.koldoon.model.*" xmlns:export="ru.koldoon.model.export.*" xmlns:type="ru.koldoon.model.type.*" xmlns:c="ru.koldoon.view.components.*"
+
+                       creationComplete="creationCompleteHandler(event)"
+                       skinClass="ru.koldoon.view.skins.ApplicationSkin" showStatusBar="false"
+                       width="1160" height="700" frameRate="60" backgroundColor="#F0E4DB"
+                       title="ActionScript WebServices Entities Generator v1.0">
+    <s:layout>
+        <s:VerticalLayout gap="0"/>
+    </s:layout>
+
+    <fx:Style source="/ru/koldoon/resources/css/application.css"/>
+
+    <fx:Declarations>
+        <model:WSDLLoader id="wsdlLoader" complete="{ wsdlModel.source = wsdlLoader.wsdl }"/>
+        <model:WSDL id="wsdlModel" wsdlChange="wsdlModel_wsdlChangeHandler(event)"/>
+
+        <model:JavaTypesParser id="javaClassesParser"
+                               javaRoot="{Settings.getInstance().javaRoot}"
+                               progressMessage="{statusMsg = event.message}"
+                               typeFound="javaClassesParser_typeFoundHandler(event)"
+                               complete="javaClassesParser_parsingCompleteHandler(event)"/>
+
+        <export:ActionScriptExporter id="asExporter"/>
+        <export:FileSystemExporter id="fileSystemExporter"
+                                   typeExporter="{ asExporter }" target="{ Settings.getInstance().target }"
+                                   progressMessage="{statusMsg = event.message}"
+                                   complete="{statusMsg = 'Complete'}"/>
+
+        <mxc:VectorCollection id="complexTypesCollection" source="{ wsdlModel.types }"
+                              filterFunction="{ function f(item:Object):Boolean { return item is ComplextType; } }"/>
+
+        <mxc:VectorCollection id="simpleTypesCollection" source="{ wsdlModel.types }"
+                              filterFunction="{ function f(item:Object):Boolean { return item is EnumType; } }"/>
+
+        <fx:Boolean id="complexSelected">{ typesViewStack.selectedChild == complexTypesContent }</fx:Boolean>
+        <type:AbstractType id="selectedItem">
+            {complexSelected ? AbstractType(complexTypesGrid.selectedItem) : AbstractType(simpleTypesGrid.selectedItem)}
+        </type:AbstractType>
+    </fx:Declarations>
+
+
+    <c:CustomPanel width="100%" panelColor="{Palette.DARK_BROWN}">
+        <c:layout>
+            <s:HorizontalLayout paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10"
+                                verticalAlign="baseline"/>
+        </c:layout>
+
+        <s:Label text="WSDL:" fontWeight="bold" color="{Palette.WHITE}"/>
+        <s:TextInput id="wsdlInput" width="100%" borderAlpha="0.5" prompt="Paste a URL or select a file"
+                     enter="wsdlInput_valueCommitHandler(event)"/>
+        <s:Button id="browseWsdlButton" label="Browse" click="browseButton_clickHandler(event)"/>
+    </c:CustomPanel>
+
+    <c:CustomPanel width="100%" panelColor="{Palette.WHITE}">
+        <c:layout>
+            <s:HorizontalLayout paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10"
+                                verticalAlign="baseline"/>
+        </c:layout>
+
+        <s:Label text="Project Root:"/>
+        <s:TextInput id="projectRootInput" width="100%" editable="false" focusEnabled="false"
+                     text="{ Settings.getInstance().projectRoot }" toolTip="{projectRootInput.text}"/>
+        <s:Button id="browseRootButton" label="Browse" click="browseRootButton_clickHandler(event)"/>
+
+        <s:Label text="Java Root:" paddingLeft="15"/>
+        <s:TextInput id="javaRootInput" width="100%" editable="false" focusEnabled="false"
+                     text="{ Settings.getInstance().javaRoot }" toolTip="{javaRootInput.text}"/>
+        <s:Button id="browseJavaRootButton" label="Browse" click="browseJavaRootButton_clickHandler(event)"/>
+
+        <s:Label text="Target:" paddingLeft="15"/>
+        <s:TextInput id="targetInput" width="100%" editable="false" focusEnabled="false"
+                     text="{ Settings.getInstance().target }" toolTip="{targetInput.text}"/>
+        <s:Button id="browseTargetButton" label="Browse" click="browseTargetButton_clickHandler(event)"/>
+    </c:CustomPanel>
+
+    <mx:HDividedBox width="100%" height="100%" paddingBottom="6">
+        <s:VGroup width="100%" height="100%" minWidth="{typesBar.width}" gap="0">
+            <c:CustomPanel panelColor="0xc3b69f" width="100%">
+                <s:HGroup id="typesBar" paddingLeft="10" paddingTop="6" paddingBottom="6" paddingRight="10">
+                    <s:ButtonBar dataProvider="{typesViewStack}"/>
+
+                    <s:HGroup gap="-1" verticalAlign="baseline"
+                              includeInLayout="{ typesViewStack.selectedChild == typesMapContent }"
+                              visible="{ typesViewStack.selectedChild == typesMapContent }">
+
+                        <s:Button label="Add" click="{ Settings.getInstance().typesMapCollection.addItem( { } ); }"/>
+                        <s:Button label="Remove" click="{ Settings.getInstance().typesMapCollection.removeItemAt(typesMapGrid.selectedIndex); }"/>
+                        <s:Spacer width="10"/>
+                        <s:Label text="defaults" buttonMode="true" textDecoration="underline" id="defaultsLabel" click="defaultsLabel_clickHandler(event)"/>
+                    </s:HGroup>
+                </s:HGroup>
+            </c:CustomPanel>
+
+            <mx:ViewStack id="typesViewStack" width="100%" height="100%">
+                <s:NavigatorContent id="complexTypesContent"
+                                    label="Complex Types Avaliable [{complexTypesCollection.length}]">
+                    <s:DataGrid id="complexTypesGrid" width="100%" height="100%" horizontalScrollPolicy="off"
+                                dataProvider="{ complexTypesCollection }">
+                        <s:columns>
+                            <s:ArrayCollection>
+                                <s:GridColumn width="26" resizable="false"
+                                              itemRenderer="ru.koldoon.view.components.dataGrid.itemRenderer.CellBooleanRenderer"/>
+                                <s:GridColumn headerText="Local Type" dataField="name" minWidth="240" width="240"/>
+                                <s:GridColumn headerText="Remote Type (Java)" dataField="remoteType" showDataTips="true"/>
+                                <s:GridColumn headerText="Status" width="54" resizable="false"
+                                              itemRenderer="ru.koldoon.view.components.dataGrid.itemRenderer.CellStatusRenderer"/>
+                            </s:ArrayCollection>
+                        </s:columns>
+                    </s:DataGrid>
+                </s:NavigatorContent>
+
+                <s:NavigatorContent id="simpleTypesContent" label="Simple Types Avaliable [{simpleTypesCollection.length}]">
+                    <s:DataGrid id="simpleTypesGrid" width="100%" height="100%" horizontalScrollPolicy="off"
+                                dataProvider="{ simpleTypesCollection }">
+                        <s:columns>
+                            <s:ArrayCollection>
+                                <s:GridColumn width="26" resizable="false"
+                                              itemRenderer="ru.koldoon.view.components.dataGrid.itemRenderer.CellBooleanRenderer"/>
+                                <s:GridColumn headerText="Local Type" dataField="name" minWidth="240" width="240"/>
+                                <s:GridColumn headerText="Remote Type (Java)" dataField="remoteType" showDataTips="true"/>
+                                <s:GridColumn headerText="Status" width="54" resizable="false"
+                                              itemRenderer="ru.koldoon.view.components.dataGrid.itemRenderer.CellStatusRenderer"/>
+                            </s:ArrayCollection>
+                        </s:columns>
+                    </s:DataGrid>
+                </s:NavigatorContent>
+
+                <s:NavigatorContent id="typesMapContent" label="Types Map">
+                    <s:DataGrid id="typesMapGrid" width="100%" height="100%" horizontalScrollPolicy="off"
+                                dataProvider="{ Settings.getInstance().typesMapCollection }"
+                                editable="true" focusEnabled="false">
+                        <s:columns>
+                            <s:ArrayCollection>
+                                <s:GridColumn headerText="Remote Type" dataField="remoteType" editable="true"/>
+                                <s:GridColumn headerText="Local Type" dataField="localType" editable="true"/>
+                            </s:ArrayCollection>
+                        </s:columns>
+                    </s:DataGrid>
+                </s:NavigatorContent>
+            </mx:ViewStack>
+        </s:VGroup>
+
+        <s:VGroup height="100%" width="420" minWidth="{contentPreviewBar.width}" gap="0">
+            <c:CustomPanel panelColor="0xc3b69f" width="100%">
+                <c:layout>
+                    <s:HorizontalLayout horizontalAlign="right"/>
+                </c:layout>
+                <s:HGroup id="contentPreviewBar" paddingLeft="10" paddingTop="6" paddingBottom="6" paddingRight="10">
+                    <s:ButtonBar dataProvider="{contentViewStack}"/>
+                </s:HGroup>
+            </c:CustomPanel>
+
+            <mx:ViewStack id="contentViewStack" width="100%" height="100%">
+                <s:NavigatorContent label="Selected Type Description" width="100%" height="100%">
+                    <mx:TextArea width="100%" height="100%" wordWrap="false"
+                                 horizontalScrollPolicy="off" focusThickness="0" editable="false"
+                                 htmlText="{ selectedItem.getDescription() }"/>
+                </s:NavigatorContent>
+
+                <s:NavigatorContent label="Implementation Preview" width="100%" height="100%">
+                    <mx:TextArea width="100%" height="100%" wordWrap="false"
+                                 horizontalScrollPolicy="off" focusThickness="0" editable="false"
+                                 text="{ asExporter.getTypeImplementation(selectedItem) }"/>
+                </s:NavigatorContent>
+            </mx:ViewStack>
+        </s:VGroup>
+    </mx:HDividedBox>
+
+    <c:CustomPanel width="100%" panelColor="{Palette.DARK_BROWN}">
+        <c:layout>
+            <s:HorizontalLayout verticalAlign="baseline"
+                                paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+        </c:layout>
+
+        <s:Label text="{statusMsg || 'ActionScript WebServices Generator, koldoon, 2013.'}"
+                 color="{Palette.WHITE}" alpha="0.6"/>
+        <s:Spacer width="100%"/>
+        <s:Button label="Begin Export" click="{ fileSystemExporter.beginExportSelected(); }"/>
+    </c:CustomPanel>
+
+    <fx:Script><![CDATA[
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+        import mx.events.FlexEvent;
+
+        import ru.koldoon.model.JavaTypesParserEvent;
+        import ru.koldoon.model.Settings;
+        import ru.koldoon.model.export.IExportableType;
+        import ru.koldoon.model.type.ComplextType;
+        import ru.koldoon.model.type.EnumType;
+        import ru.koldoon.tools.isEmpty;
+        import ru.koldoon.view.Palette;
+
+        [Bindable]
+        private var statusMsg:String;
+
+        private var fileReference:FileReference;
+        private var projectRoot:File = new File();
+        private var javaRoot:File = new File();
+        private var target:File = new File();
+
+        private function browseButton_clickHandler(event:MouseEvent):void
+        {
+            fileReference = new FileReference();
+            fileReference.addEventListener(Event.SELECT, fileReference_selectHandler, false, 0, true);
+            fileReference.addEventListener(Event.CANCEL, fileReference_selectHandler, false, 0, true);
+            fileReference.browse();
+        }
+
+        private function fileReference_selectHandler(event:Event):void
+        {
+            fileReference.removeEventListener(Event.SELECT, fileReference_selectHandler);
+            fileReference.removeEventListener(Event.CANCEL, fileReference_selectHandler);
+
+            if (event.type == Event.CANCEL)
+            {
+                return;
+            }
+
+            wsdlInput.text = "file://" + fileReference.name;
+            fileReference.addEventListener(Event.COMPLETE, fileReference_uploadCompleteDataHandler);
+            fileReference.load();
+        }
+
+        private function fileReference_uploadCompleteDataHandler(event:Event):void
+        {
+            fileReference.removeEventListener(Event.COMPLETE, fileReference_uploadCompleteDataHandler);
+            var textData:String = fileReference.data.readUTFBytes(fileReference.data.bytesAvailable);
+            wsdlModel.source = new XML(textData);
+        }
+
+
+        private function wsdlInput_valueCommitHandler(event:Event):void
+        {
+            wsdlLoader.load(wsdlInput.text);
+        }
+
+
+        /**
+         * Init
+         * @param event
+         */
+        private function creationCompleteHandler(event:FlexEvent):void
+        {
+            javaRoot.addEventListener(Event.SELECT, javaRoot_selectHandler);
+            projectRoot.addEventListener(Event.SELECT, projectRoot_selectHandler);
+            target.addEventListener(Event.SELECT, target_selectHandler);
+        }
+
+
+        private function browseRootButton_clickHandler(event:MouseEvent):void
+        {
+            projectRoot.nativePath = Settings.getInstance().projectRoot;
+            projectRoot.browseForDirectory("Select project root directory");
+        }
+
+        private function projectRoot_selectHandler(event:Event):void
+        {
+            Settings.getInstance().projectRoot = projectRoot.nativePath;
+        }
+
+        private function defaultsLabel_clickHandler(event:MouseEvent):void
+        {
+            Alert.show(
+                    "This will replace all your current settings!",
+                    "Do you know what're you doing?",
+                    Alert.YES | Alert.NO, this, defaultsAlert_closeHandler);
+        }
+
+        private function defaultsAlert_closeHandler(event:CloseEvent):void
+        {
+            if (event.detail == Alert.YES)
+            {
+                Settings.getInstance().resetTypesMap();
+            }
+        }
+
+        private function browseJavaRootButton_clickHandler(event:MouseEvent):void
+        {
+            javaRoot.nativePath = Settings.getInstance().javaRoot;
+            javaRoot.browseForDirectory("Select Java classes root directory");
+        }
+
+        private function javaRoot_selectHandler(event:Event):void
+        {
+            Settings.getInstance().javaRoot = javaRoot.nativePath;
+            parseJavaClasses();
+        }
+
+        private function wsdlModel_wsdlChangeHandler(event:Event):void
+        {
+            parseJavaClasses();
+        }
+
+        private function parseJavaClasses():void
+        {
+            if (wsdlModel.types.length > 0)
+            {
+                javaClassesParser.start();
+            }
+        }
+
+        private function javaClassesParser_typeFoundHandler(event:JavaTypesParserEvent):void
+        {
+            if (wsdlModel.typesMap[event.typeName])
+            {
+                var typeModel:AbstractType = AbstractType(wsdlModel.typesMap[event.typeName]);
+                typeModel.selected = isEmpty(typeModel.remoteType);
+                typeModel.remoteType = event.typePackage + "." + event.typeName;
+            }
+        }
+
+        private function browseTargetButton_clickHandler(event:Event):void
+        {
+            target.nativePath = Settings.getInstance().target;
+            target.browseForDirectory("Select target directory for generated classes");
+        }
+
+        private function target_selectHandler(event:Event):void
+        {
+            Settings.getInstance().target = target.nativePath;
+        }
+
+        private function javaClassesParser_parsingCompleteHandler(event:Event):void
+        {
+            statusMsg = "Complete";
+            var exportableTypes:Vector.<IExportableType> = new Vector.<IExportableType>();
+            for each (var type:AbstractType in wsdlModel.types)
+            {
+                exportableTypes.push(type);
+            }
+
+            fileSystemExporter.types = exportableTypes;
+            fileSystemExporter.getFilesStatus();
+        }
+        ]]></fx:Script>
+</s:WindowedApplication>

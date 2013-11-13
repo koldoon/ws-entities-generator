@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark">
+
+    <s:CheckBox id="checkBox" verticalCenter="-1" horizontalCenter="2"
+                selected="{ item.selected }" change="{ item.selected = checkBox.selected }"/>
+
+    <fx:Script><![CDATA[
+        import ru.koldoon.model.ISelectable;
+
+        [Bindable]
+        private var item:ISelectable;
+
+        override public function set data(value:Object):void
+        {
+            super.data = value;
+            item = ISelectable(data);
+        }
+        ]]></fx:Script>
+</s:GridItemRenderer>
