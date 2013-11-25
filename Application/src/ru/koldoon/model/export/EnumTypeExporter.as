@@ -7,7 +7,7 @@ package ru.koldoon.model.export
 
     public class EnumTypeExporter implements ITypeExporter
     {
-        private static const enumTypeTemplate:String = new Templates.EnumTypeTemplate();
+        private static const enumTypeTemplate:String = new Templates.EnumTypeTemplate2();
 
         // Template Tokens
         private static const VALUE_NAME:String = "#VALUE_NAME#";

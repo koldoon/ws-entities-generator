@@ -1,0 +1,17 @@
+package #PACKAGE#
+{
+    /**
+     * #TYPE_NAME# possible values
+     */
+    public class #TYPE_NAME#
+    {
+#VALUE_TEMPLATE#
+        public static const #VALUE_NAME#:String = "#VALUE_NAME#";
+#VALUE_TEMPLATE#
+
+        public function #TYPE_NAME#()
+        {
+            throw new Error("You don't need to create instances of this class");
+        }
+    }
+}

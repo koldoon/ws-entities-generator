@@ -5,6 +5,9 @@ package ru.koldoon.model.export.template
         [Embed(source="/ru/koldoon/model/export/template/EnumType.template", mimeType="application/octet-stream")]
         public static const EnumTypeTemplate:Class;
 
+        [Embed(source="/ru/koldoon/model/export/template/EnumType2.template", mimeType="application/octet-stream")]
+        public static const EnumTypeTemplate2:Class;
+
         [Embed(source="/ru/koldoon/model/export/template/ComplexType.template", mimeType="application/octet-stream")]
         public static const ComplexTypeTemplate:Class;
 

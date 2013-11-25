@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
                        xmlns:mx="library://ns.adobe.com/flex/mx"
-                       xmlns:mxc="mx.collections.*" xmlns:model="ru.koldoon.model.*" xmlns:export="ru.koldoon.model.export.*" xmlns:type="ru.koldoon.model.type.*" xmlns:c="ru.koldoon.view.components.*"
+                       xmlns:mxc="mx.collections.*" xmlns:model="ru.koldoon.model.*"
+                       xmlns:export="ru.koldoon.model.export.*" xmlns:type="ru.koldoon.model.type.*"
+                       xmlns:c="ru.koldoon.view.components.*"
 
                        creationComplete="creationCompleteHandler(event)"
                        skinClass="ru.koldoon.view.skins.ApplicationSkin" showStatusBar="false"
