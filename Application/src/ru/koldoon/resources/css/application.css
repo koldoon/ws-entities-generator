@@ -15,6 +15,21 @@
 }
 
 @font-face {
+    font-family: ubuntu;
+    src: url('/ru/koldoon/resources/fonts/Ubuntu-R.ttf');
+    embedAsCFF: true;
+    advancedAntiAliasing: true;
+}
+
+@font-face {
+    font-family: ubuntu;
+    src: url('/ru/koldoon/resources/fonts/Ubuntu-B.ttf');
+    fontWeight: bold;
+    embedAsCFF: true;
+    advancedAntiAliasing: true;
+}
+
+@font-face {
     font-family: consolas_mx;
     src: url('/ru/koldoon/resources/fonts/consola.ttf');
     embedAsCFF: false;
@@ -35,15 +50,15 @@ mx|TextArea {
 }
 
 s|TextBase {
-    fontFamily: tahoma;
+    fontFamily: ubuntu;
 }
 
 s|SkinnableTextBase {
-    fontFamily: tahoma;
+    fontFamily: ubuntu;
 }
 
 s|DefaultGridItemRenderer {
-    fontFamily: tahoma;
+    fontFamily: ubuntu;
     fontSize: 12;
 }
 

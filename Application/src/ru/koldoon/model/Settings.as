@@ -119,7 +119,8 @@ package ru.koldoon.model
                 string:   "String",
                 dateTime: "Date",
                 long:     "Number",
-                boolean:  "Boolean"
+                boolean:  "Boolean",
+                deciaml:  "Number"
 
             };
 
