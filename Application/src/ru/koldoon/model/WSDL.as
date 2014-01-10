@@ -5,7 +5,7 @@ package ru.koldoon.model
 
     import ru.koldoon.model.type.AbstractType;
     import ru.koldoon.model.type.CollectionType;
-    import ru.koldoon.model.type.ComplextType;
+    import ru.koldoon.model.type.ComplexType;
     import ru.koldoon.model.type.EnumType;
     import ru.koldoon.model.type.IType;
     import ru.koldoon.model.type.Property;
@@ -77,7 +77,7 @@ package ru.koldoon.model
             _messages = new Vector.<String>();
             messageTypesMap = { };
 
-            getSchemaNamespacePrefix(_source);
+            xsnsPrefix = getSchemaNamespacePrefix(_source);
             parseMessages(_source.child(MESSAGE));
 
             var schemas:XMLList = _source.child(TYPES).child(SCHEMA);
@@ -106,11 +106,13 @@ package ru.koldoon.model
         }
 
 
-        private function getSchemaNamespacePrefix(xml:XML):void
+        private static function getSchemaNamespacePrefix(xml:XML):String
         {
             for each (var ns:Namespace in xml.namespaceDeclarations())
                 if (ns.uri == XSDNS.uri)
-                    xsnsPrefix = ns.prefix;
+                    return ns.prefix;
+
+            return "";
         }
 
         private function parseMessages(messagesList:XMLList):void
@@ -125,16 +127,16 @@ package ru.koldoon.model
                     {
                         var elementType:Array = String(messagePart.@element).split(":");
                         var prefix:String = elementType[0];
-                        var type:String = elementType[1];
+                        var typeName:String = elementType[1];
 
-                        messageTypesMap[type] = prefix;
+                        messageTypesMap[typeName] = prefix;
                     }
                 }
             }
         }
 
         /**
-         * @see model.type.ComplextType
+         * @see ComplexType
          */
         [Bindable(event="wsdlChange")]
         public function get types():Vector.<IType>
@@ -166,7 +168,7 @@ package ru.koldoon.model
 
             for each (var complexType:XML in complexTypes)
             {
-                var type:ComplextType = parseComplexType(complexType);
+                var type:ComplexType = parseComplexType(complexType);
 
                 if (type && !messageTypesMap[type.name])
                 {
@@ -217,7 +219,7 @@ package ru.koldoon.model
          * @param xmlData
          * @return
          */
-        private function parseComplexType(xmlData:XML):ComplextType
+        private function parseComplexType(xmlData:XML):ComplexType
         {
             if (xmlData.children().length() == 0)
                 return null;
@@ -227,7 +229,7 @@ package ru.koldoon.model
             var all:XMLList = xmlData.child(ALL).child(ELEMENT);
             var extension:XMLList = xmlData.child(COMPLEX_CONTENT).child(EXTENSION);
 
-            var type:ComplextType = getTypeInstance(className) as ComplextType;
+            var type:ComplexType = getTypeInstance(className) as ComplexType;
             type.properties = getPropertiesFromXmlElements(sequence);
             type.properties = type.properties.concat(getPropertiesFromXmlElements(all));
 
@@ -287,7 +289,7 @@ package ru.koldoon.model
             {
                 // create a ComplexType instance by default
                 // SimpleType instances should be parsed first
-                _typesMap[className] = new ComplextType(className);
+                _typesMap[className] = new ComplexType(className);
             }
 
             return AbstractType(_typesMap[className]);

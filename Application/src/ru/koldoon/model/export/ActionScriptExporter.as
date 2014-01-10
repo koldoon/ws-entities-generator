@@ -2,7 +2,7 @@ package ru.koldoon.model.export
 {
     import flash.utils.Dictionary;
 
-    import ru.koldoon.model.type.ComplextType;
+    import ru.koldoon.model.type.ComplexType;
     import ru.koldoon.model.type.EnumType;
     import ru.koldoon.model.type.IType;
     import ru.koldoon.tools.classof;
@@ -17,7 +17,7 @@ package ru.koldoon.model.export
         public function ActionScriptExporter()
         {
             registeredTypeExporters[EnumType] = new EnumTypeExporter();
-            registeredTypeExporters[ComplextType] = new ComplexTypeExporter();
+            registeredTypeExporters[ComplexType] = new ComplexTypeExporter();
         }
 
 

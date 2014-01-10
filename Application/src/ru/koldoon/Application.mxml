@@ -32,7 +32,7 @@
                                    complete="{statusMsg = 'Complete'}"/>
 
         <mxc:VectorCollection id="complexTypesCollection" source="{ wsdlModel.types }"
-                              filterFunction="{ function f(item:Object):Boolean { return item is ComplextType; } }"/>
+                              filterFunction="{ function f(item:Object):Boolean { return item is ComplexType; } }"/>
 
         <mxc:VectorCollection id="simpleTypesCollection" source="{ wsdlModel.types }"
                               filterFunction="{ function f(item:Object):Boolean { return item is EnumType; } }"/>
@@ -191,7 +191,7 @@
         import ru.koldoon.model.JavaTypesParserEvent;
         import ru.koldoon.model.Settings;
         import ru.koldoon.model.export.IExportableType;
-        import ru.koldoon.model.type.ComplextType;
+        import ru.koldoon.model.type.ComplexType;
         import ru.koldoon.model.type.EnumType;
         import ru.koldoon.tools.isEmpty;
         import ru.koldoon.view.Palette;

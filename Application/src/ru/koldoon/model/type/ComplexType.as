@@ -3,7 +3,7 @@ package ru.koldoon.model.type
     import mx.utils.StringUtil;
 
     [Bindable]
-    public class ComplextType extends AbstractType
+    public class ComplexType extends AbstractType
     {
         /**
          * Super class
@@ -29,7 +29,7 @@ package ru.koldoon.model.type
         }
 
 
-        public function ComplextType(name:String)
+        public function ComplexType(name:String)
         {
             super(name);
         }

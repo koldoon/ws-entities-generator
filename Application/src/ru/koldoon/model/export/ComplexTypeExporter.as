@@ -3,7 +3,7 @@ package ru.koldoon.model.export
     import ru.koldoon.model.Settings;
     import ru.koldoon.model.export.template.Templates;
     import ru.koldoon.model.type.CollectionType;
-    import ru.koldoon.model.type.ComplextType;
+    import ru.koldoon.model.type.ComplexType;
     import ru.koldoon.model.type.IType;
     import ru.koldoon.model.type.Property;
 
@@ -43,7 +43,7 @@ package ru.koldoon.model.export
         {
             var prop:Property;
             var typesMap:Object = settings.typesMap;
-            var typeModel:ComplextType = ComplextType(type);
+            var typeModel:ComplexType = ComplexType(type);
             var typeImpl:String = complexTypeTemplate;
 
             // -----------------------------------------------------------------------------------
