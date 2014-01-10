@@ -8,6 +8,7 @@ package ru.koldoon.model
     import ru.koldoon.model.type.ComplexType;
     import ru.koldoon.model.type.EnumType;
     import ru.koldoon.model.type.IType;
+    import ru.koldoon.model.type.MapType;
     import ru.koldoon.model.type.Property;
     import ru.koldoon.model.type.SimpleType;
     import ru.koldoon.tools.notEmpty;
@@ -166,13 +167,13 @@ package ru.koldoon.model
                 }
             }
 
-            for each (var complexType:XML in complexTypes)
+            for each (var complexTypeXML:XML in complexTypes)
             {
-                var type:ComplexType = parseComplexType(complexType);
+                var complexType:ComplexType = parseComplexType(complexTypeXML);
 
-                if (type && !messageTypesMap[type.name])
+                if (complexType && !messageTypesMap[complexType.name])
                 {
-                    _types.push(type);
+                    _types.push(complexType);
                 }
             }
         }
@@ -229,24 +230,77 @@ package ru.koldoon.model
             var all:XMLList = xmlData.child(ALL).child(ELEMENT);
             var extension:XMLList = xmlData.child(COMPLEX_CONTENT).child(EXTENSION);
 
-            var type:ComplexType = getTypeInstance(className) as ComplexType;
-            type.properties = getPropertiesFromXmlElements(sequence);
-            type.properties = type.properties.concat(getPropertiesFromXmlElements(all));
+            var complexType:ComplexType = getTypeInstance(className) as ComplexType;
+            complexType.properties = getPropertiesFromXmlElements(sequence);
+            complexType.properties = complexType.properties.concat(getPropertiesFromXmlElements(all));
 
             if (extension.length() > 0)
             {
-                var extensionBase:Array = String(extension.@base).split(":");
-                var extensionName:String = extensionBase[1];
-                type.parent = getTypeInstance(extensionName);
+                var extensionDef:Array = String(extension.@base).split(":");
+                var extensionName:String = extensionDef[1];
+                complexType.parent = getTypeInstance(extensionName);
 
                 var extSequence:XMLList = extension.child(SEQUENCE).child(ELEMENT);
                 var extAll:XMLList = extension.child(ALL).child(ELEMENT);
 
-                type.properties = type.properties.concat(getPropertiesFromXmlElements(extSequence));
-                type.properties = type.properties.concat(getPropertiesFromXmlElements(extAll));
+                complexType.properties = complexType.properties.concat(getPropertiesFromXmlElements(extSequence));
+                complexType.properties = complexType.properties.concat(getPropertiesFromXmlElements(extAll));
             }
 
-            return type;
+            return complexType;
+        }
+
+        /**
+         * Example:
+         *
+         * <xs:complexType>
+         *     <xs:sequence>
+         *         <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+         *             <xs:complexType>
+         *                 <xs:sequence>
+         *                     <xs:element name="key" minOccurs="0" type="xs:string"/>
+         *                     <xs:element name="value" minOccurs="0" type="tns:CurrencyCutOffVO"/>
+         *                 </xs:sequence>
+         *             </xs:complexType>
+         *         </xs:element>
+         *     </xs:sequence>
+         * </xs:complexType>
+         *
+         * @param xmlData
+         * @return
+         */
+        private function parseMapType(xmlData:XML):MapType
+        {
+            var mapType:MapType = new MapType();
+            var elements:XMLList = xmlData.child(SEQUENCE).child(ELEMENT).child(COMPLEX_TYPE).child(SEQUENCE).child(ELEMENT);
+            var keyTypeDef:Array;
+            var valueTypeDef:Array;
+
+            for each (var element:XML in elements)
+            {
+                if (String(element.@name) == "key")
+                    keyTypeDef = String(element.@type).split(":");
+
+                if (String(element.@name) == "value")
+                    valueTypeDef = String(element.@type).split(":");
+            }
+
+            var keyType:String = keyTypeDef[1];
+            var valueType:AbstractType;
+
+            if (valueTypeDef[0] == xsnsPrefix)
+            {
+                valueType = new SimpleType(valueTypeDef[1]);
+            }
+            else
+            {
+                valueType = getTypeInstance(valueTypeDef[1]);
+            }
+
+            mapType.keyType = keyType;
+            mapType.valueType = valueType;
+
+            return mapType;
         }
 
         private function getPropertiesFromXmlElements(elementsList:XMLList):Vector.<Property>
@@ -259,8 +313,13 @@ package ru.koldoon.model
 
                 var propInfo:Property = new Property(element.@name);
                 var propTypeDef:Array = String(element.@type).split(":");
+                var complexContent:XMLList = element.child(COMPLEX_TYPE);
 
-                if (propTypeDef[0] == xsnsPrefix)
+                if (complexContent.length() > 0)
+                {
+                    propInfo.type = parseMapType(complexContent[0]);
+                }
+                else if (propTypeDef[0] == xsnsPrefix)
                 {
                     propInfo.type = new SimpleType(propTypeDef[1]);
                 }
