@@ -10,6 +10,7 @@ package ru.koldoon.model
 
     import mx.controls.Alert;
 
+    import ru.koldoon.tools.isEmpty;
     import ru.koldoon.tools.notEmpty;
 
     [Event(name="complete", type="flash.events.Event")]
@@ -44,7 +45,7 @@ package ru.koldoon.model
 
         public function load(url:String):void
         {
-            if (inProgress) return;
+            if (inProgress || isEmpty(url)) return;
 
             var urlRequest:URLRequest = new URLRequest(url);
             urlRequest.method = URLRequestMethod.GET;

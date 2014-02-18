@@ -1,6 +1,7 @@
-package ru.koldoon.model.export
+package ru.koldoon.model.export.actionscript
 {
     import ru.koldoon.model.Settings;
+    import ru.koldoon.model.export.*;
     import ru.koldoon.model.export.template.Templates;
     import ru.koldoon.model.type.EnumType;
     import ru.koldoon.model.type.IType;

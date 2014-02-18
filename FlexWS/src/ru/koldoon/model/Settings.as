@@ -109,7 +109,7 @@ package ru.koldoon.model
         [Bindable(event="dataChange")]
         public function get typesMap():Object
         {
-            return settingsData.typesMap;
+            return settingsData.typesMap || { };
         }
 
         public function resetTypesMap():void
@@ -134,6 +134,39 @@ package ru.koldoon.model
             return _typesMapCollection;
         }
 
+        // -----------------------------------------------------------------------------------
+        // WSDL Urls History
+        // -----------------------------------------------------------------------------------
+
+        [Bindable(event="dataChange")]
+        [ArrayElementType("String")]
+        public function get wsdlUrlsHistory():ArrayCollection
+        {
+            var history:Array = [];
+            for (var url:String in settingsData.history)
+            {
+                history.push(url);
+            }
+
+            return new ArrayCollection(history);
+        }
+
+        public function commitWsdlUrl(url:String):void
+        {
+            if (!settingsData.history)
+            {
+                settingsData.history = { };
+            }
+
+            var now:Date = new Date();
+            settingsData.history[url] = now.getTime();
+            writeSettings();
+            dispatchEvent(new Event("dataChange"));
+        }
+
+        /**
+         * Constructor
+         */
         public function Settings()
         {
             if (_instance)
@@ -147,7 +180,7 @@ package ru.koldoon.model
             dispatchEvent(new Event("dataChange"));
         }
 
-        private function getListOfTypesMap(map:Object):Array
+        private static function getListOfTypesMap(map:Object):Array
         {
             var types:Array = [];
             for (var remoteType:String in map)

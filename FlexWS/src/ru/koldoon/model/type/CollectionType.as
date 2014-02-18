@@ -4,6 +4,8 @@ package ru.koldoon.model.type
 
     public class CollectionType extends AbstractType
     {
+        public var elementType:IType;
+
         public function CollectionType(name:String)
         {
             super(name);

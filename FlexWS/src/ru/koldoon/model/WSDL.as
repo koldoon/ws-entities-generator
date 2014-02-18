@@ -3,6 +3,8 @@ package ru.koldoon.model
     import flash.events.Event;
     import flash.events.EventDispatcher;
 
+    import mx.controls.Alert;
+
     import ru.koldoon.model.type.AbstractType;
     import ru.koldoon.model.type.CollectionType;
     import ru.koldoon.model.type.ComplexType;
@@ -41,7 +43,7 @@ package ru.koldoon.model
         // -----------------------------------------------------------------------------------
 
         private var _source:XML;
-        private var xsnsPrefix:String = "";
+        private var xsnsPrefixes:Object = { "xs": true, "xsd": true };
 
         /**
          * [name]:[AbstractType]
@@ -78,7 +80,7 @@ package ru.koldoon.model
             _messages = new Vector.<String>();
             messageTypesMap = { };
 
-            xsnsPrefix = getSchemaNamespacePrefix(_source);
+            // xsnsPrefixes = getSchemaNamespacePrefix(_source);
             parseMessages(_source.child(MESSAGE));
 
             var schemas:XMLList = _source.child(TYPES).child(SCHEMA);
@@ -252,7 +254,6 @@ package ru.koldoon.model
 
         /**
          * Example:
-         *
          * <xs:complexType>
          *     <xs:sequence>
          *         <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
@@ -285,20 +286,28 @@ package ru.koldoon.model
                     valueTypeDef = String(element.@type).split(":");
             }
 
-            var keyType:String = keyTypeDef[1];
-            var valueType:AbstractType;
-
-            if (valueTypeDef[0] == xsnsPrefix)
+            if (!keyTypeDef || !valueTypeDef)
             {
-                valueType = new SimpleType(valueTypeDef[1]);
+                throw new Error("PARSING_ERROR");
+            }
+
+            if (keyTypeDef[0] in xsnsPrefixes)
+            {
+                mapType.keyType = new SimpleType(keyTypeDef[1]);
             }
             else
             {
-                valueType = getTypeInstance(valueTypeDef[1]);
+                mapType.keyType = getTypeInstance(keyTypeDef[1]);
             }
 
-            mapType.keyType = keyType;
-            mapType.valueType = valueType;
+            if (valueTypeDef[0] in xsnsPrefixes)
+            {
+                mapType.valueType = new SimpleType(valueTypeDef[1]);
+            }
+            else
+            {
+                mapType.valueType = getTypeInstance(valueTypeDef[1]);
+            }
 
             return mapType;
         }
@@ -317,9 +326,16 @@ package ru.koldoon.model
 
                 if (complexContent.length() > 0)
                 {
-                    propInfo.type = parseMapType(complexContent[0]);
+                    try
+                    {
+                        propInfo.type = parseMapType(complexContent[0]);
+                    }
+                    catch (error:Error)
+                    {
+                        Alert.show("Could not parse probably map type:\n" + element.toXMLString());
+                    }
                 }
-                else if (propTypeDef[0] == xsnsPrefix)
+                else if (propTypeDef[0] in xsnsPrefixes)
                 {
                     propInfo.type = new SimpleType(propTypeDef[1]);
                 }

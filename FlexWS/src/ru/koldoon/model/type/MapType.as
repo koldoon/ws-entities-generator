@@ -4,7 +4,7 @@ package ru.koldoon.model.type
 
     public class MapType extends AbstractType
     {
-        public var keyType:String;
+        public var keyType:AbstractType;
 
         public var valueType:AbstractType;
 
@@ -24,7 +24,7 @@ package ru.koldoon.model.type
         {
             return StringUtil.substitute(
                     "Map of &lt;{0}, {1}&gt;",
-                    keyType || "String",
+                    keyType ? keyType.displayName : "String",
                     valueType ? valueType.displayName : "Object");
         }
     }

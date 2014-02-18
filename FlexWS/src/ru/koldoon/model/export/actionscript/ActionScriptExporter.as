@@ -1,7 +1,8 @@
-package ru.koldoon.model.export
+package ru.koldoon.model.export.actionscript
 {
     import flash.utils.Dictionary;
 
+    import ru.koldoon.model.export.*;
     import ru.koldoon.model.type.ComplexType;
     import ru.koldoon.model.type.EnumType;
     import ru.koldoon.model.type.IType;
@@ -24,7 +25,9 @@ package ru.koldoon.model.export
         public function getTypeImplementation(type:IType):String
         {
             if (!type)
+            {
                 return "";
+            }
 
             var exporter:ITypeExporter = registeredTypeExporters[classof(type)];
             return exporter ? exporter.getTypeImplementation(type) : "";

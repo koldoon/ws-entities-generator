@@ -31,6 +31,7 @@ package #PACKAGE#
          * Collection of <code>#COLLECTION_ELEMENT_TYPE#</code>
          * @see #COLLECTION_ELEMENT_TYPE#
          */
+        [ArrayElementType("#PACKAGE#.#COLLECTION_ELEMENT_TYPE#")]
         public function get #COLLECTION_NAME#():ArrayCollection
         {
             return _#COLLECTION_NAME#;
