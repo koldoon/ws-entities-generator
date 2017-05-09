@@ -1,5 +1,4 @@
-package ru.koldoon.model.export
-{
+package ru.koldoon.model.export {
     import flash.display.Shape;
     import flash.events.Event;
     import flash.events.EventDispatcher;
@@ -13,8 +12,7 @@ package ru.koldoon.model.export
     [Event(name="complete", type="flash.events.Event")]
     [Event(name="progressMessage", type="ru.koldoon.model.ProgressEvent")]
 
-    public class FileSystemExporter extends EventDispatcher
-    {
+    public class FileSystemExporter extends EventDispatcher {
         /**
          * Target Directory
          */
@@ -27,8 +25,8 @@ package ru.koldoon.model.export
 
         public var types:Vector.<IExportableType>;
 
-        public function FileSystemExporter()
-        {
+
+        public function FileSystemExporter() {
         }
 
 
@@ -36,10 +34,11 @@ package ru.koldoon.model.export
         private var fileStream:FileStream = new FileStream();
         private static const frameTicker:Shape = new Shape();
 
-        public function getFilesStatus():void
-        {
-            if (isEmpty(target) || !typeExporter)
+
+        public function getFilesStatus():void {
+            if (isEmpty(target) || !typeExporter) {
                 return;
+            }
 
             currentTypeIndex = 0;
             frameTicker.addEventListener(Event.ENTER_FRAME, __getNextFileStatus);
@@ -48,10 +47,9 @@ package ru.koldoon.model.export
 
         private var currentTypeIndex:int = 0;
 
-        private function __getNextFileStatus(event:Event):void
-        {
-            if (currentTypeIndex >= types.length)
-            {
+
+        private function __getNextFileStatus(event:Event):void {
+            if (currentTypeIndex >= types.length) {
                 frameTicker.removeEventListener(Event.ENTER_FRAME, __getNextFileStatus);
                 dispatchEvent(new Event(Event.COMPLETE));
                 return;
@@ -61,8 +59,7 @@ package ru.koldoon.model.export
             dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS_MESSAGE, "Check status " + currentType.name));
             file.nativePath = target + "\\" + currentType.name + ".as";
 
-            if (file.exists)
-            {
+            if (file.exists) {
                 fileStream.open(file, FileMode.READ);
                 var fileData:String = fileStream.readUTFBytes(fileStream.bytesAvailable);
 
@@ -70,8 +67,7 @@ package ru.koldoon.model.export
                 currentType.selected = false;
                 fileStream.close();
             }
-            else
-            {
+            else {
                 currentType.status = "NEW";
             }
 
@@ -79,19 +75,18 @@ package ru.koldoon.model.export
         }
 
 
-        public function beginExportSelected():void
-        {
-            if (isEmpty(target) || !typeExporter)
+        public function beginExportSelected():void {
+            if (isEmpty(target) || !typeExporter) {
                 return;
+            }
 
             currentTypeIndex = 0;
             frameTicker.addEventListener(Event.ENTER_FRAME, __exportNextSelectedFile);
         }
 
-        private function __exportNextSelectedFile(event:Event):void
-        {
-            if (currentTypeIndex >= types.length)
-            {
+
+        private function __exportNextSelectedFile(event:Event):void {
+            if (currentTypeIndex >= types.length) {
                 frameTicker.removeEventListener(Event.ENTER_FRAME, __exportNextSelectedFile);
                 dispatchEvent(new Event(Event.COMPLETE));
                 return;
@@ -100,8 +95,7 @@ package ru.koldoon.model.export
             var currentType:IExportableType = types[currentTypeIndex];
             dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS_MESSAGE, "Export type " + currentType.name));
 
-            if (currentType.selected)
-            {
+            if (currentType.selected) {
                 file.nativePath = target + "\\" + currentType.name + ".as";
                 fileStream.open(file, FileMode.WRITE);
                 fileStream.writeUTFBytes(typeExporter.getTypeImplementation(currentType));

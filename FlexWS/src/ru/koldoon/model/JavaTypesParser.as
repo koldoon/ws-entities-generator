@@ -1,5 +1,4 @@
-package ru.koldoon.model
-{
+package ru.koldoon.model {
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.events.FileListEvent;
@@ -14,89 +13,84 @@ package ru.koldoon.model
     [Event(name="complete", type="flash.events.Event")]
     [Event(name="progressMessage", type="ru.koldoon.model.ProgressEvent")]
 
-    public class JavaTypesParser extends EventDispatcher
-    {
+    public class JavaTypesParser extends EventDispatcher {
         private static const javaPackageRegExp:RegExp =
-                /package\s+(?P<Package>(\w+\.|\w+)*);/;
+            /package\s+(?P<Package>(\w+\.|\w+)*);/;
 
         private static const xmlTypedJavaClassRegExp:RegExp =
-                /@XmlType\(name\s*=\s*\"(?P<XmlType>\w+)\"\).*public\s+((abstract|final)\s+){0,1}(class|enum)\s+(?P<JavaType>\w+)\s+.*\{.*\}/;
+            /@XmlType\(name\s*=\s*\"(?P<XmlType>\w+)\"\).*public\s+((abstract|final)\s+){0,1}(class|enum)\s+(?P<JavaType>\w+)\s+.*\{.*\}/;
 
         private static const javaClassRegExp:RegExp =
-                /public\s+((abstract|final)\s+){0,1}(class|enum)\s+(?P<JavaType>\w+)\s+.*\{.*\}/;
+            /public\s+((abstract|final)\s+){0,1}(class|enum)\s+(?P<JavaType>\w+)\s+.*\{.*\}/;
 
 
         private var _javaRoot:String;
         private var directoriesQueue:Vector.<File> = new Vector.<File>();
 
-        public function JavaTypesParser()
-        {
+
+        public function JavaTypesParser() {
         }
 
-        public function set javaRoot(value:String):void
-        {
+
+        public function set javaRoot(value:String):void {
             _javaRoot = value;
         }
 
-        public function get javaRoot():String
-        {
+
+        public function get javaRoot():String {
             return _javaRoot;
         }
 
 
-        public function start():void
-        {
-            if (isEmpty(_javaRoot))
+        public function start():void {
+            if (isEmpty(_javaRoot)) {
                 return;
+            }
 
             var file:File = new File(_javaRoot);
 
-            if (!file.isDirectory)
+            if (!file.isDirectory) {
                 throw new Error("javaRoot must be the path to directory!");
+            }
 
             scanDirectory(file);
         }
 
 
-        private function scanDirectory(directory:File):void
-        {
+        private function scanDirectory(directory:File):void {
             dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS_MESSAGE, "Scanning directory " + directory.nativePath));
             directory.addEventListener(FileListEvent.DIRECTORY_LISTING, directory_directoryListingHandler, false, 0, true);
             directory.getDirectoryListingAsync();
         }
 
-        private function directory_directoryListingHandler(event:FileListEvent):void
-        {
+
+        private function directory_directoryListingHandler(event:FileListEvent):void {
             File(event.target).removeEventListener(FileListEvent.DIRECTORY_LISTING, directory_directoryListingHandler);
 
-            for each (var item:File in event.files)
-            {
-                if (item.isDirectory)
-                {
+            for each (var item:File in event.files) {
+                if (item.isDirectory) {
                     directoriesQueue.push(item);
                 }
-                else
-                {
+                else {
                     checkJavaClass(item);
                 }
             }
 
-            if (directoriesQueue.length > 0)
-            {
+            if (directoriesQueue.length > 0) {
                 var nextDirectory:File = directoriesQueue.pop();
                 nextDirectory.addEventListener(FileListEvent.DIRECTORY_LISTING, directory_directoryListingHandler, false, 0, true);
                 nextDirectory.getDirectoryListingAsync();
             }
-            else
-            {
+            else {
                 dispatchEvent(new Event(Event.COMPLETE));
             }
         }
 
-        private function checkJavaClass(file:File):void
-        {
-            if (file.extension != "java")
+
+        private function checkJavaClass(file:File):void {
+            if (file.extension != "java") {
                 return;
+            }
 
             var fileStream:FileStream = new FileStream();
             fileStream.open(file, FileMode.READ);
@@ -106,26 +100,21 @@ package ru.koldoon.model
 
             var typeName:String;
             var xmlTypedMatch:Object = xmlTypedJavaClassRegExp.exec(classData);
-            if (xmlTypedMatch)
-            {
+            if (xmlTypedMatch) {
                 typeName = xmlTypedMatch.XmlType;
             }
-            else
-            {
+            else {
                 var javaTypeMatch:Object = javaClassRegExp.exec(classData);
-                if (javaTypeMatch)
-                {
+                if (javaTypeMatch) {
                     typeName = javaTypeMatch.JavaType;
                 }
             }
 
-            if (notEmpty(typeName))
-            {
+            if (notEmpty(typeName)) {
                 var javaPackage:String;
                 var javaPackageMatch:Object = javaPackageRegExp.exec(classData);
 
-                if (javaPackageMatch)
-                {
+                if (javaPackageMatch) {
                     javaPackage = javaPackageMatch.Package;
                 }
 

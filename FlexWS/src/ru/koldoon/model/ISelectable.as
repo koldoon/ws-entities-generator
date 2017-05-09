@@ -1,9 +1,8 @@
-package ru.koldoon.model
-{
+package ru.koldoon.model {
     [Bindable]
-    public interface ISelectable
-    {
+    public interface ISelectable {
         function get selected():Boolean;
+
 
         function set selected(value:Boolean):void;
     }

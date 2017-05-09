@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:autocomplete="ru.koldoon.view.components.autocomplete.*"
+
+                height="20">
+
+    <fx:Script>
+        <![CDATA[
+        import flashx.textLayout.edit.EditManager;
+        import flashx.textLayout.edit.SelectionState;
+        import flashx.textLayout.formats.TextLayoutFormat;
+
+        import ru.koldoon.view.components.autocomplete.HighlightItemList;
+        import ru.koldoon.view.components.autocomplete.SearchMode;
+        import ru.koldoon.view.components.autocomplete.event.HighlightItemListEvent;
+
+        import spark.components.RichText;
+
+        private var _editManager:EditManager;
+
+        private var _needApplyHightlight:Boolean;
+
+
+        override public function set label(value:String):void {
+            super.label = value;
+            highlightTexts();
+        }
+
+
+        override public function set selected(value:Boolean):void {
+            super.selected = value;
+
+            if (owner is HighlightItemList) {
+                highlightTexts();
+            }
+        }
+
+
+        override protected function set hovered(value:Boolean):void {
+            super.hovered = value;
+            highlightTexts();
+        }
+
+
+        protected function highlightTexts():void {
+            if (selected) {
+                // Don't highlight text in selected item
+                resetPreviousSelection();
+                highlightText(0, 0);
+                return;
+            }
+
+            switch (HighlightItemList(owner).searchMode) {
+                case SearchMode.PREFIX_SEARCH :
+                    resetPreviousSelection();
+                    highlightText(0, HighlightItemList(owner).lookupValue.length);
+                    break;
+
+                case SearchMode.INFIX_SEARCH :
+                    var lookupTextValue:String = HighlightItemList(owner).lookupValue;
+
+                    var searchPattern:RegExp = new RegExp(lookupTextValue, "gi");
+                    var firstFoundWordIndex:int = label.search(searchPattern);
+
+                    resetPreviousSelection();
+
+                    if (lookupTextValue.length == 0 || firstFoundWordIndex == -1) {
+                        highlightText(0, 0);
+                    }
+                    else {
+                        var matches:Array = label.match(searchPattern);
+                        var previousFirstFoundIndex:int = label.length;
+                        if (matches) {
+                            for (var i:int = 0; i < matches.length; i++) {
+                                var foundWord:String = matches[i];
+                                var startHightlightIndex:int = label.toLowerCase().lastIndexOf(foundWord.toLowerCase(), previousFirstFoundIndex);
+                                var endHiglightIndex:int = startHightlightIndex + foundWord.length;
+                                highlightText(startHightlightIndex, endHiglightIndex);
+
+                                previousFirstFoundIndex = startHightlightIndex - 1;
+
+                                if (previousFirstFoundIndex < 0) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+
+        protected function highlightText(startHightlightIndex:int, endHiglightIndex:int):void {
+            var selectionFormat:TextLayoutFormat = new TextLayoutFormat();
+            var containerFormat:TextLayoutFormat = new TextLayoutFormat();
+            var paragraphFormat:TextLayoutFormat = new TextLayoutFormat();
+            var characterFormat:TextLayoutFormat = new TextLayoutFormat();
+
+            if (!_editManager) {
+                createEditManager();
+            }
+
+            if (endHiglightIndex > startHightlightIndex && endHiglightIndex <= labelDisplay.text.length) {
+                selectionFormat.backgroundColor = 0xE0E8F3;
+
+                characterFormat = selectionFormat;
+                var currentSelectionState:SelectionState =
+                    new SelectionState(
+                        RichText(labelDisplay).textFlow,
+                        startHightlightIndex, endHiglightIndex, selectionFormat);
+
+                _editManager.applyFormat(characterFormat, paragraphFormat, containerFormat, currentSelectionState);
+            }
+        }
+
+
+        protected function resetPreviousSelection():void {
+            var nonSelectionFormat:TextLayoutFormat = new TextLayoutFormat();
+            var paragraphFormat:TextLayoutFormat = new TextLayoutFormat();
+            var containerFormat:TextLayoutFormat = new TextLayoutFormat();
+
+            if (!_editManager) {
+                createEditManager();
+            }
+
+            if (itemIndex == HighlightItemList(owner).selectedIndex) {
+                nonSelectionFormat.backgroundColor = HighlightItemList(owner).getStyle("selectionColor");
+            }
+            else if (hovered) {
+                nonSelectionFormat.backgroundColor = HighlightItemList(owner).getStyle("rollOverColor");
+            }
+            else {
+                nonSelectionFormat.backgroundColor = HighlightItemList(owner).getStyle("contentBackgroundColor");
+            }
+            nonSelectionFormat.color = 0x000000;
+
+            var characterFormat:TextLayoutFormat = nonSelectionFormat;
+            var restSelectionState:SelectionState = new SelectionState(RichText(labelDisplay).textFlow, 0, labelDisplay.text.length, nonSelectionFormat);
+
+            _editManager.applyFormat(characterFormat, paragraphFormat, containerFormat, restSelectionState);
+        }
+
+
+        private function createEditManager():void {
+            _editManager = new EditManager();
+            RichText(labelDisplay).textFlow.interactionManager = _editManager;
+        }
+
+
+        private function onLabelDisplayCreationComplete():void {
+            createEditManager();
+            HighlightItemList(owner).addEventListener(HighlightItemListEvent.LOOKUP_VALUE_CHANGE, onLookupValueChange);
+        }
+
+
+        private function onLookupValueChange(event:HighlightItemListEvent):void {
+            highlightTexts();
+        }
+        ]]>
+    </fx:Script>
+
+    <autocomplete:FixedRichText id="labelDisplay" verticalCenter="1" left="4" right="4"
+                                creationComplete="onLabelDisplayCreationComplete()"/>
+</s:ItemRenderer>

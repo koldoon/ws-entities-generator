@@ -1,0 +1,33 @@
+package #PACKAGE#
+{
+#IMPORT_TAMPLATE#
+    import mx.collections.ArrayCollection;
+#IMPORT_TAMPLATE#
+
+    [Bindable]
+    [RemoteClass(alias="#REMOTE_TYPE#")]
+#TYPE_HEADER#
+    public class #TYPE_NAME#
+#TYPE_HEADER#
+#SUBTYPE_HEADER#
+    public class #TYPE_NAME# extends #SUBTYPE_NAME#
+#SUBTYPE_HEADER#
+    {
+#PROPERTY_TEMPLATE#
+        public var #PROPERTY_NAME#:#PROPERTY_TYPE#;
+#PROPERTY_TEMPLATE#
+
+#COLLECTION_TEMPLATE#
+        /**
+         * Collection of <code>#COLLECTION_ELEMENT_TYPE#</code>
+         * @see #COLLECTION_ELEMENT_TYPE#
+         */
+        [ArrayElementType("#PACKAGE#.#COLLECTION_ELEMENT_TYPE#")]
+        public var #COLLECTION_NAME#:ArrayCollection;
+
+#COLLECTION_TEMPLATE#
+        public function #TYPE_NAME#()
+        {
+        }
+    }
+}

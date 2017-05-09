@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark" xmlns:c="ru.koldoon.view.components.autocomplete.*"
+        alpha.disabled=".5">
+
+    <!-- host component -->
+    <fx:Metadata>
+        [HostComponent("ru.koldoon.view.components.autocomplete.AutoComplete")]
+    </fx:Metadata>
+
+    <s:states>
+        <s:State name="normal"/>
+        <s:State name="disabled"/>
+    </s:states>
+
+    <!---
+     The PopUpAnchor control that opens the drop-down list.
+    -->
+    <s:PopUpAnchor id="popUp" displayPopUp="false" top="0" bottom="0" left="0" right="0"
+                   popUpWidthMatchesAnchorWidth="false" popUpPosition="below">
+
+        <s:Group id="dropDown" minWidth="{this.width}">
+            <s:filters>
+                <s:DropShadowFilter blurX="5" blurY="5" alpha="0.3" distance="2"
+                                    angle="45" color="#000000" quality="2"/>
+            </s:filters>
+
+            <c:HighlightItemList id="suggestionsList" width="100%" borderColor="#aaaaaa"
+                                 itemRenderer="ru.koldoon.view.skins.autocomplete.HighlightListItemRenderer">
+                <c:layout>
+                    <s:VerticalLayout gap="0" horizontalAlign="contentJustify"
+                                      requestedMinRowCount="1" requestedMaxRowCount="6"/>
+                </c:layout>
+            </c:HighlightItemList>
+        </s:Group>
+    </s:PopUpAnchor>
+
+    <s:TextInput id="textInput" left="0" right="0" top="0" bottom="0" prompt="{hostComponent.prompt}"/>
+</s:Skin>

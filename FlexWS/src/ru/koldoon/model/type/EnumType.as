@@ -1,21 +1,18 @@
-package ru.koldoon.model.type
-{
+package ru.koldoon.model.type {
     import mx.utils.StringUtil;
 
-    public class EnumType extends AbstractType
-    {
+    public class EnumType extends AbstractType {
         public var values:Vector.<String> = new Vector.<String>();
 
-        public function EnumType(name:String)
-        {
+
+        public function EnumType(name:String) {
             super(name);
         }
 
-        override public function getDescription():String
-        {
+
+        override public function getDescription():String {
             var valuesString:String = "<br>";
-            for each (var value:String in values)
-            {
+            for each (var value:String in values) {
                 valuesString += StringUtil.substitute(" -> {0}<br>", value);
             }
 

@@ -68,26 +68,26 @@
          */
         static private const exclusions:Array = ["backgroundRect", "contentGroup", "statusText"];
 
-        /**
-         * @private
-         */
-        override public function get colorizeExclusions():Array
-        {return exclusions;}
 
         /**
          * @private
          */
-        override protected function initializationComplete():void
-        {
+        override public function get colorizeExclusions():Array {return exclusions;}
+
+
+        /**
+         * @private
+         */
+        override protected function initializationComplete():void {
             useChromeColor = true;
             super.initializationComplete();
         }
 
+
         /**
          *  @private
          */
-        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
-        {
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             backgroundFill.color = getStyle("backgroundColor");
             backgroundFill.alpha = getStyle("backgroundAlpha");
             super.updateDisplayList(unscaledWidth, unscaledHeight);

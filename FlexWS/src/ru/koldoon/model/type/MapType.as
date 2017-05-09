@@ -1,31 +1,27 @@
-package ru.koldoon.model.type
-{
+package ru.koldoon.model.type {
     import mx.utils.StringUtil;
 
-    public class MapType extends AbstractType
-    {
+    public class MapType extends AbstractType {
         public var keyType:AbstractType;
 
         public var valueType:AbstractType;
 
 
-        public function MapType()
-        {
+        public function MapType() {
         }
 
 
-        override public function get name():String
-        {
+        override public function get name():String {
             return "Object";
         }
 
+
         [Bindable(event="__NoChangeEvent__")]
-        override public function get displayName():String
-        {
+        override public function get displayName():String {
             return StringUtil.substitute(
-                    "Map of &lt;{0}, {1}&gt;",
-                    keyType ? keyType.displayName : "String",
-                    valueType ? valueType.displayName : "Object");
+                "Map of &lt;{0}, {1}&gt;",
+                keyType ? keyType.displayName : "String",
+                valueType ? valueType.displayName : "Object");
         }
     }
 }

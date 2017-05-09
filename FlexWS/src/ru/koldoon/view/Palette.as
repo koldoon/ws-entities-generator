@@ -1,7 +1,5 @@
-package ru.koldoon.view
-{
-    public class Palette
-    {
+package ru.koldoon.view {
+    public class Palette {
         public static const VERY_DARK:Number = 0x5D402A;
         public static const DARK_BROWN:Number = 0x64554A;
         public static const LIGHT_BROWN:Number = 0xC3906B;

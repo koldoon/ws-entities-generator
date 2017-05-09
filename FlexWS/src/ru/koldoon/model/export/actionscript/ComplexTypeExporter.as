@@ -1,5 +1,4 @@
-package ru.koldoon.model.export.actionscript
-{
+package ru.koldoon.model.export.actionscript {
     import ru.koldoon.model.Settings;
     import ru.koldoon.model.export.*;
     import ru.koldoon.model.export.template.Templates;
@@ -8,8 +7,7 @@ package ru.koldoon.model.export.actionscript
     import ru.koldoon.model.type.IType;
     import ru.koldoon.model.type.Property;
 
-    public class ComplexTypeExporter implements ITypeExporter
-    {
+    public class ComplexTypeExporter implements ITypeExporter {
         private static const complexTypeTemplate:String = new Templates.ComplexTypeTemplate();
 
         // Template Tokens
@@ -35,13 +33,11 @@ package ru.koldoon.model.export.actionscript
         private var settings:Settings = Settings.getInstance();
 
 
-        public function ComplexTypeExporter()
-        {
+        public function ComplexTypeExporter() {
         }
 
 
-        public function getTypeImplementation(type:IType):String
-        {
+        public function getTypeImplementation(type:IType):String {
             var prop:Property;
             var typesMap:Object = settings.typesMap;
             var typeModel:ComplexType = ComplexType(type);
@@ -52,20 +48,18 @@ package ru.koldoon.model.export.actionscript
             // -----------------------------------------------------------------------------------
 
             var headerTemplate:Array;
-            if (typeModel.parent)
-            {
+            if (typeModel.parent) {
                 headerTemplate = typeImpl.split(TYPE_HEADER);
                 typeImpl = headerTemplate[0] + headerTemplate[2];
                 typeImpl = typeImpl
-                        .split(SUBTYPE_HEADER).join("")
-                        .split(SUBTYPE_NAME).join(typesMap[typeModel.parent.name] || typeModel.parent.name);
+                    .split(SUBTYPE_HEADER).join("")
+                    .split(SUBTYPE_NAME).join(typesMap[typeModel.parent.name] || typeModel.parent.name);
             }
-            else
-            {
+            else {
                 headerTemplate = typeImpl.split(SUBTYPE_HEADER);
                 typeImpl = headerTemplate[0] + headerTemplate[2];
                 typeImpl = typeImpl
-                        .split(TYPE_HEADER).join("");
+                    .split(TYPE_HEADER).join("");
             }
 
             // -----------------------------------------------------------------------------------
@@ -75,13 +69,11 @@ package ru.koldoon.model.export.actionscript
             var propertyTemplate:Array = typeImpl.split(PROPERTY_TEMPLATE);
             var propertiesListImpl:String = "";
             const propertyPattern:String = propertyTemplate[1];
-            for each (prop in typeModel.properties)
-            {
-                if (!(prop.type is CollectionType))
-                {
+            for each (prop in typeModel.properties) {
+                if (!(prop.type is CollectionType)) {
                     propertiesListImpl += propertyPattern
-                            .split(PROPERTY_NAME).join(prop.name)
-                            .split(PROPERTY_TYPE).join(typesMap[prop.type.name] || prop.type.name);
+                        .split(PROPERTY_NAME).join(prop.name)
+                        .split(PROPERTY_TYPE).join(typesMap[prop.type.name] || prop.type.name);
                 }
             }
             typeImpl = propertyTemplate[0] + propertiesListImpl + propertyTemplate[2];
@@ -93,13 +85,11 @@ package ru.koldoon.model.export.actionscript
             var collectionTemplate:Array = typeImpl.split(COLLECTION_TEMPLATE);
             var collectionsListImpl:String = "";
             const collectionPattern:String = collectionTemplate[1];
-            for each (prop in typeModel.properties)
-            {
-                if (prop.type is CollectionType)
-                {
+            for each (prop in typeModel.properties) {
+                if (prop.type is CollectionType) {
                     collectionsListImpl += collectionPattern
-                            .split(COLLECTION_NAME).join(prop.name)
-                            .split(COLLECTION_ELEMENT_TYPE).join(prop.type.name);
+                        .split(COLLECTION_NAME).join(prop.name)
+                        .split(COLLECTION_ELEMENT_TYPE).join(prop.type.name);
                 }
             }
             typeImpl = collectionTemplate[0] + collectionsListImpl + collectionTemplate[2];
@@ -109,10 +99,10 @@ package ru.koldoon.model.export.actionscript
             // -----------------------------------------------------------------------------------
 
             typeImpl = typeImpl
-                    .split(TYPE_NAME).join(typesMap[typeModel.name] || typeModel.name)
-                    .split(PACKAGE).join(settings.targetPackage)
-                    .split(REMOTE_TYPE).join(typeModel.remoteType)
-                    .split(IMPORT_TAMPLATE).join("");
+                .split(TYPE_NAME).join(typesMap[typeModel.name] || typeModel.name)
+                .split(PACKAGE).join(settings.targetPackage)
+                .split(REMOTE_TYPE).join(typeModel.remoteType)
+                .split(IMPORT_TAMPLATE).join("");
 
             return typeImpl;
         }
